@@ -67,10 +67,8 @@ object StatefulStreamingWithMultipleStates {
     rootLogger.setLevel(Level.ERROR)
 
     def createStreamingContext(): StreamingContext = {
-      val sparkConf = new SparkConf()
-      sparkConf.setAppName("StatefulStreamingRestartFailure")
-      sparkConf.setMaster("local[4]")
-      val ssc = new StreamingContext(sparkConf, Duration(1000))
+      val spark = SparkSession.builder().appName("StatefulStreamingRestartFailure").master("local[4]").getOrCreate()
+      val ssc = new StreamingContext(spark.sparkContext, Duration(1000))
       ssc.checkpoint(checkpointDirectory)
 
       val socketStream: DStream[String] = ssc.socketTextStream(hostname = tcpHost, port = tcpPort)
