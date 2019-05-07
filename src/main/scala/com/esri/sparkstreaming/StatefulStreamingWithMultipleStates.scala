@@ -2,7 +2,7 @@ package com.esri.sparkstreaming
 
 import com.esri.sparkstreaming.Defaults._
 import org.apache.log4j.{Level, Logger}
-import org.apache.spark.SparkConf
+import org.apache.spark.streaming.kafka010._
 import org.apache.spark.sql.{DataFrame, SQLContext, SparkSession}
 import org.apache.spark.streaming._
 import org.apache.spark.streaming.dstream.DStream
@@ -71,10 +71,31 @@ object StatefulStreamingWithMultipleStates {
       val ssc = new StreamingContext(spark.sparkContext, Duration(1000))
       ssc.checkpoint(checkpointDirectory)
 
-      val socketStream: DStream[String] = ssc.socketTextStream(hostname = tcpHost, port = tcpPort)
-      socketStream.checkpoint(Seconds(1))
 
-      val flights: DStream[SimpleFeature] = socketStream.map(s => {
+
+      val preferredHosts = LocationStrategies.PreferConsistent
+      val topics = List("flights")
+      import org.apache.kafka.common.serialization.StringDeserializer
+      val kafkaParams: Map[String, Object] = Map(
+        "bootstrap.servers" -> "172.17.0.2:9092",
+        "key.deserializer" -> classOf[StringDeserializer],
+        "value.deserializer" -> classOf[StringDeserializer],
+        "group.id" -> "flightStream",
+        "auto.offset.reset" -> "earliest",
+        "enable.auto.commit" -> Boolean.box(true)
+      )
+
+      val dstream = KafkaUtils.createDirectStream[String, String](
+        ssc,
+        preferredHosts,
+        ConsumerStrategies.Subscribe[String, String](topics, kafkaParams)
+      ).map(record => record.value())
+      val checkpointedDStream = dstream.checkpoint(Seconds(1))
+
+//      val socketStream: DStream[String] = ssc.socketTextStream(hostname = tcpHost, port = tcpPort)
+//      socketStream.checkpoint(Seconds(1))
+
+      val flights: DStream[SimpleFeature] = checkpointedDStream.map(s => {
         val columns: Array[String] = s.split(",").map(_.trim)
         Flight(
           columns(0),           // flightId

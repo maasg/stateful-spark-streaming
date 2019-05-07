@@ -1,0 +1,14 @@
+$ docker run -it --mount type=bind,source="$(pwd)/src/main/resources",target="/data" spotify/kafka /bin/bash
+root@35e60c3a0284:/# ls /data
+FlightSim.csv	      FlightSim_batch2.csv  FlightSim_batch4.csv  FlightSim_batch6.csv	FlightSim_batch8.csv  log4j.properties
+FlightSim_batch1.csv  FlightSim_batch3.csv  FlightSim_batch5.csv  FlightSim_batch7.csv	FlightSim_batch9.csv
+root@35e60c3a0284:/# /opt/kafka_2.11-0.10.1.0/bin/kafka-console-producer.sh --broker-list 172.17.0.2:9092 --topic flights < /data/FlightSim_batch1.csv
+root@35e60c3a0284:/# /opt/kafka_2.11-0.10.1.0/bin/kafka-console-producer.sh --broker-list 172.17.0.2:9092 --topic flights < /data/FlightSim_batch2.csv
+root@35e60c3a0284:/# /opt/kafka_2.11-0.10.1.0/bin/kafka-console-producer.sh --broker-list 172.17.0.2:9092 --topic flights < /data/FlightSim_batch3.csv
+root@35e60c3a0284:/# /opt/kafka_2.11-0.10.1.0/bin/kafka-console-producer.sh --broker-list 172.17.0.2:9092 --topic flights < /data/FlightSim_batch4.csv
+root@35e60c3a0284:/# /opt/kafka_2.11-0.10.1.0/bin/kafka-console-producer.sh --broker-list 172.17.0.2:9092 --topic flights < /data/FlightSim_batch5.csv
+root@35e60c3a0284:/# /opt/kafka_2.11-0.10.1.0/bin/kafka-console-producer.sh --broker-list 172.17.0.2:9092 --topic flights < /data/FlightSim_batch6.csv
+root@35e60c3a0284:/# /opt/kafka_2.11-0.10.1.0/bin/kafka-console-producer.sh --broker-list 172.17.0.2:9092 --topic flights < /data/FlightSim_batch7.csv
+root@35e60c3a0284:/# /opt/kafka_2.11-0.10.1.0/bin/kafka-console-producer.sh --broker-list 172.17.0.2:9092 --topic flights < /data/FlightSim_batch8.csv
+root@35e60c3a0284:/# /opt/kafka_2.11-0.10.1.0/bin/kafka-console-producer.sh --broker-list 172.17.0.2:9092 --topic flights < /data/FlightSim_batch9.csv
+root@35e60c3a0284:/#
